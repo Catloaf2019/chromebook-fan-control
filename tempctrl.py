@@ -49,5 +49,5 @@ while True:
 	fanPercent = (fanCurve[fcindex])
 	print("The cpu temperature is " + str(temp) + " degrees Celcius")
 	print("This is closest to fan curve index " + str(fcindex))
-	print("Setting fan speed to " + str(fanPercent) + "%")
+	print("Setting fan speed to " + str(fanPercent) + "%\n")
 	system(ectoolPath + " fanduty " + str(fanPercent))
