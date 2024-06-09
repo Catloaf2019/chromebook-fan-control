@@ -20,16 +20,16 @@ sensorPath="/sys/class/thermal/thermal_zone5/temp"
 ectoolPath="/usr/local/bin/ectool"
 
 #This defines the fan curve for temperatures of
-#40, 50, 60, 70, 80, 90, and 100 degrees celcius
+#40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90 degrees celcius
 #The values in the list are fan speed percentage
-fanCurve = [0, 0, 10, 25, 50, 100, 100]
+fanCurve = [0, 0, 0, 10, 15, 20, 30, 40, 50, 100, 100]
 
 #In case you want to adjust the temperatures that correspond to the various fan settings
 #Must be the same length as fanCurve
-tempList = [40, 50, 60, 70, 80, 90, 100]
+tempList = [40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
 
 #Number of seconds the program takes to get cpu temp and change fan speed
-#Lowering it increases responsiveness at the cost of cpu time
+#Lowering it will cause sudden spikes in the fan as a result of the cpu boosting
 refreshFreq = 1
 
 def getCpuTemp():
@@ -42,12 +42,19 @@ def closestIndex(list, value):
 	return min(range(len(list)), key=lambda i: abs(list[i]-value))
 
 print("Initializing...")
+lastTemp = 60
+
 while True:
 	sleep(refreshFreq)
 	temp = getCpuTemp()
-	fcindex = closestIndex(tempList, temp)
-	fanPercent = (fanCurve[fcindex])
-	print("The cpu temperature is " + str(temp) + " degrees Celcius")
-	print("This is closest to fan curve index " + str(fcindex))
-	print("Setting fan speed to " + str(fanPercent) + "%\n")
-	system(ectoolPath + " fanduty " + str(fanPercent))
+	print("The cpu temperature is " + str(temp) + " degrees Celcius\n")
+
+	if abs(lastTemp - temp) > 1:
+		print("Temperature inconsistent, not adjusting fan speed to prevent overcompensation\n")
+	else:
+		FCIndex = closestIndex(tempList, temp)
+		print("This is closest to fan curve index " + str(FCIndex))
+		fanPercent = (fanCurve[FCIndex])
+		print("Setting fan speed to " + str(fanPercent) + "%\n")
+		system(ectoolPath + " fanduty " + str(fanPercent))
+	lastTemp = temp
