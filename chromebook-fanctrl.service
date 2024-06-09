@@ -1,0 +1,11 @@
+[Unit]
+Description=Start fan control script on boot
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/tempctrl.py
+ExecStop=/usr/local/bin/ectool autofanctrl
+
+[Install]
+WantedBy=multi-user.target
+
